@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <groupId>com.github.jkutner</groupId>
+  <groupId>org.boinc4j</groupId>
   <artifactId>boinc4j</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <modelVersion>4.0.0</modelVersion>
@@ -13,12 +13,12 @@
     Library for BOINC applications
   </description>
 
-  <url>http://github.com/jkutner/boinc4j</url>
+  <url>http://github.com/boinc4j/boinc4j</url>
 
   <scm>
-    <connection>scm:git:git://github.com/jkutner/boinc4j.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/jkutner/boinc4j.git</developerConnection>
-    <url>http://github.com/jkutner/boinc4j</url>
+    <connection>scm:git:git://github.com/boinc4j/boinc4j.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/boinc4j/boinc4j.git</developerConnection>
+    <url>http://github.com/boinc4j/boinc4j</url>
     <tag>HEAD</tag>
   </scm>
 

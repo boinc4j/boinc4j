@@ -1,4 +1,4 @@
-package com.github.jkutner.boinc;
+package org.boinc4j;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;

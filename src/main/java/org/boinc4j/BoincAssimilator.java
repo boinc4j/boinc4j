@@ -1,4 +1,4 @@
-package com.github.jkutner.boinc;
+package org.boinc4j;
 
 import java.io.File;
 import java.sql.Connection;

@@ -1,4 +1,4 @@
-package com.github.jkutner.boinc;
+package org.boinc4j;
 
 public class BoincTask {
 
