@@ -18,7 +18,29 @@ public class BoincApp {
 
   public static final String DEFAULT_WRAPPER_VERSION="26014";
 
-  public static final String MJAVA_VERSION="v0.1";
+  public static final String MJAVA_VERSION="v0.2";
+
+  private static final String JDK_ZIP_LOGICAL_NAME="jdk.zip";
+
+  private static Map<String,String> jdkVersions = new HashMap<>();
+
+  private static Map<String,String[]> jdkUrls = new HashMap<>();
+
+  static {
+    jdkVersions.put("x86_64-apple-darwin", "openjdk-1.7.0-u80-unofficial-macosx-x86_64-image");
+    jdkVersions.put("i686-apple-darwin", "openjdk-1.7.0-u80-unofficial-macosx-x86_64-image");
+    jdkVersions.put("windows_x86_64", "openjdk-1.7.0-u80-unofficial-windows-amd64-image");
+    jdkVersions.put("windows_intelx86", "openjdk-1.7.0-u80-unofficial-windows-i586-image");
+    jdkVersions.put("i686-pc-linux-gnu", "openjdk-1.7.0-u80-unofficial-linux-i586-image");
+    jdkVersions.put("x86_64-pc-linux-gnu", "openjdk-1.7.0-u80-unofficial-linux-amd64-image");
+
+    for (String p : jdkVersions.keySet()) {
+      String jdkFolder = jdkVersions.get(p);
+      jdkUrls.put(p, new String[] {
+          "https://bitbucket.org/alexkasko/openjdk-unofficial-builds/downloads/"+jdkFolder+".zip"
+      });
+    }
+  }
 
   private static String[] defaultPlatforms = new String[] {
       "x86_64-apple-darwin",
@@ -118,8 +140,9 @@ public class BoincApp {
       files.put(uberjarName, uberjar);
       files.put("job.xml", copyJobXml(platformDir, p, uberjarName));
       files.put("wrapper", installWrapper(platformDir, p));
-      files.put(getJavaCmd(p), installMJava(platformDir, p));
-      createVersionFile(platformDir, files);
+      files.put(JDK_ZIP_LOGICAL_NAME, null);
+      files.put(mjavaLogicalName(p), installMJava(platformDir, p));
+      createVersionFile(platformDir, p, files);
       createComposerJson();
     }
   }
@@ -182,8 +205,8 @@ public class BoincApp {
       throws ImpossibleModificationException, IOException {
     String xml = new Xembler(new Directives().add("job_desc")
         .add("task")
-        .add("application").set(getJavaCmd(platform)).up()
-        .add("command_line").set("-jar " + uberjarName).up()
+        .add("application").set(mjavaLogicalName(platform)).up()
+        .add("command_line").set(mjavaOptions(platform) + " -jar " + uberjarName).up()
         .add("append_cmdline_args")
     ).xml();
 
@@ -202,20 +225,30 @@ public class BoincApp {
     return new File(platformDir, wrapperName(platform)+exeExtension(platform));
   }
 
-  protected void createVersionFile(File platformDir, Map<String,File> files)
+  protected void createVersionFile(File platformDir, String platform, Map<String,File> files)
       throws ImpossibleModificationException, IOException {
     Directives version = new Directives().add("version");
 
     for (String logicalName : files.keySet()) {
       File physicalFile = files.get(logicalName);
-      Directives fileXml = version.add("file")
-          .add("physical_name").set(physicalFile.getName()).up()
-          .add("copy_file").up();
+
+      Directives fileXml = version.add("file");
+      if (JDK_ZIP_LOGICAL_NAME.equals(logicalName)) {
+        for (String url : jdkUrls.get(platform)) {
+          fileXml.add("url").set(url).up();
+        }
+      } else {
+        fileXml.
+            add("physical_name").set(physicalFile.getName()).up().
+            add("copy_file").up();
+      }
+
       if (logicalName.equals("wrapper")) {
         fileXml.add("main_program").up();
       } else {
         fileXml.add("logical_name").set(logicalName).up();
       }
+
       fileXml.up();
     }
 
@@ -247,25 +280,29 @@ public class BoincApp {
     return "";
   }
 
-  protected String getJavaCmd(String platform) {
-    if (platform.startsWith("windows_"))
-      return "mjava.exe";
-    return "mjava";
-  }
-
   protected File installMJava(File platformDir, String platform) throws IOException, ZipException {
     String zipFilename = "mjava_" + platform + ".zip";
     String url = "https://github.com/jkutner/mjava/releases/download/"+MJAVA_VERSION+"/"+zipFilename;
     installZipFile(platformDir, zipFilename, url);
-    File mjavaExe = new File(platformDir, getJavaCmd(platform));
-    File mjavaExePhysical = new File(platformDir, mjavaName(platform));
+    File mjavaExe = new File(platformDir, mjavaLogicalName(platform));
+    File mjavaExePhysical = new File(platformDir, mjavaPhysicalName(platform));
     FileUtils.moveFile(mjavaExe, mjavaExePhysical);
     mjavaExePhysical.setExecutable(true, false);
     return mjavaExePhysical;
   }
 
-  protected String mjavaName(String platform) {
+  protected String mjavaPhysicalName(String platform) {
     return "mjava_"+MJAVA_VERSION+"_" + platform + exeExtension(platform);
+  }
+
+  protected String mjavaLogicalName(String platform) {
+    if (platform.startsWith("windows_"))
+      return "mjava.exe";
+    return "mjava";
+  }
+
+  protected String mjavaOptions(String platform) {
+    return "--mjava-zip=jdk.zip --mjava-home="+jdkVersions.get(platform);
   }
 
   protected void installZipFile(File platformDir, String zipFilename, String urlString) throws IOException, ZipException {
