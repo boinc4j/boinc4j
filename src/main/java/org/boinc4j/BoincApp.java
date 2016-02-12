@@ -234,6 +234,7 @@ public class BoincApp {
 
       Directives fileXml = version.add("file");
       if (JDK_ZIP_LOGICAL_NAME.equals(logicalName)) {
+        fileXml.add("physical_name").set(jdkVersions.get(platform) + ".zip").up();
         for (String url : jdkUrls.get(platform)) {
           fileXml.add("url").set(url).up();
         }
