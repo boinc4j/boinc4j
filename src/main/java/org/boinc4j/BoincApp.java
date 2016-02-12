@@ -140,7 +140,7 @@ public class BoincApp {
       files.put(uberjarName, uberjar);
       files.put("job.xml", copyJobXml(platformDir, p, uberjarName));
       files.put("wrapper", installWrapper(platformDir, p));
-      files.put(JDK_ZIP_LOGICAL_NAME, null);
+      files.put(JDK_ZIP_LOGICAL_NAME, installJdkZip(platformDir, p));
       files.put(mjavaLogicalName(p), installMJava(platformDir, p));
       createVersionFile(platformDir, p, files);
       createComposerJson();
@@ -232,16 +232,15 @@ public class BoincApp {
     for (String logicalName : files.keySet()) {
       File physicalFile = files.get(logicalName);
 
-      Directives fileXml = version.add("file");
+      Directives fileXml = version.add("file").
+          add("physical_name").set(physicalFile.getName()).up();
+
       if (JDK_ZIP_LOGICAL_NAME.equals(logicalName)) {
-        fileXml.add("physical_name").set(jdkVersions.get(platform) + ".zip").up();
         for (String url : jdkUrls.get(platform)) {
           fileXml.add("url").set(url).up();
         }
       } else {
-        fileXml.
-            add("physical_name").set(physicalFile.getName()).up().
-            add("copy_file").up();
+        fileXml.add("copy_file").up();
       }
 
       if (logicalName.equals("wrapper")) {
@@ -304,6 +303,22 @@ public class BoincApp {
 
   protected String mjavaOptions(String platform) {
     return "--mjava-zip=jdk.zip --mjava-home="+jdkVersions.get(platform);
+  }
+
+  protected File installJdkZip(File platformDir, String platform) throws IOException, ZipException {
+
+    String filename = jdkVersions.get(platform) + ".zip";
+    File zipFilename = new File(platformDir, filename);
+
+    if (zipFilename.exists()) {
+      System.out.println("Using cached " + zipFilename + "...");
+    } else {
+      System.out.println("Downloading " + zipFilename + "...");
+      String urlString = jdkUrls.get(platform)[0];
+      URL url = new URL(urlString);
+      FileUtils.copyURLToFile(url, zipFilename);
+    }
+    return zipFilename;
   }
 
   protected void installZipFile(File platformDir, String zipFilename, String urlString) throws IOException, ZipException {
