@@ -18,7 +18,7 @@ public class BoincApp {
 
   public static final String DEFAULT_WRAPPER_VERSION="26014";
 
-  public static final String MJAVA_VERSION="v0.2";
+  public static final String MJAVA_VERSION="v0.3";
 
   private static final String JDK_ZIP_LOGICAL_NAME="jdk.zip";
 
