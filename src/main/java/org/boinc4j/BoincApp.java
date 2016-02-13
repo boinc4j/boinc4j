@@ -35,9 +35,8 @@ public class BoincApp {
     jdkVersions.put("x86_64-pc-linux-gnu", "openjdk-1.7.0-u80-unofficial-linux-amd64-image");
 
     for (String p : jdkVersions.keySet()) {
-      String jdkFolder = jdkVersions.get(p);
       jdkUrls.put(p, new String[] {
-          "https://bitbucket.org/alexkasko/openjdk-unofficial-builds/downloads/"+jdkFolder+".zip"
+          "https://s3.amazonaws.com/boinc4j/"+jdkVersions.get(p)+".zip"
       });
     }
   }
@@ -311,9 +310,9 @@ public class BoincApp {
     File zipFilename = new File(platformDir, filename);
 
     if (zipFilename.exists()) {
-      System.out.println("Using cached " + zipFilename + "...");
+      System.out.println("Using cached " + filename + "...");
     } else {
-      System.out.println("Downloading " + zipFilename + "...");
+      System.out.println("Downloading " + filename + "...");
       String urlString = jdkUrls.get(platform)[0];
       URL url = new URL(urlString);
       FileUtils.copyURLToFile(url, zipFilename);
