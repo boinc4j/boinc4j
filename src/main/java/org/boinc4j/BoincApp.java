@@ -28,7 +28,6 @@ public class BoincApp {
 
   static {
     jdkVersions.put("x86_64-apple-darwin", "openjdk-1.7.0-u80-unofficial-macosx-x86_64-image");
-    jdkVersions.put("i686-apple-darwin", "openjdk-1.7.0-u80-unofficial-macosx-x86_64-image");
     jdkVersions.put("windows_x86_64", "openjdk-1.7.0-u80-unofficial-windows-amd64-image");
     jdkVersions.put("windows_intelx86", "openjdk-1.7.0-u80-unofficial-windows-i586-image");
     jdkVersions.put("i686-pc-linux-gnu", "openjdk-1.7.0-u80-unofficial-linux-i586-image");
@@ -43,7 +42,6 @@ public class BoincApp {
 
   private static String[] defaultPlatforms = new String[] {
       "x86_64-apple-darwin",
-      "i686-apple-darwin",
       "windows_intelx86",
       "windows_x86_64",
       "i686-pc-linux-gnu",
@@ -55,6 +53,8 @@ public class BoincApp {
   private File boincDir = new File(System.getProperty("user.dir"), "boinc");
 
   private File srcUberjar;
+
+  private String mainClass;
 
   private File srcJobXml;
 
@@ -68,6 +68,7 @@ public class BoincApp {
 
   public BoincApp(
       File uberjar,
+      String mainClass,
       Map<String,Boolean> altPlatforms,
       File jobXml,
       File templatesDir,
@@ -75,7 +76,7 @@ public class BoincApp {
       File targetDir,
       String assimilatorClass
   ) {
-    platforms = new HashSet<String>();
+    platforms = new HashSet<>();
     for (String p : altPlatforms.keySet())
       if (altPlatforms.get(p)) platforms.add(p);
 
@@ -83,6 +84,7 @@ public class BoincApp {
       if (!altPlatforms.containsKey(p) || altPlatforms.get(p)) platforms.add(p);
 
     this.srcUberjar = uberjar;
+    this.mainClass = mainClass;
     this.srcJobXml = jobXml;
     this.srcTemplatesDir = templatesDir;
     this.versionKey = versionKey == null ? UUID.randomUUID().toString() : versionKey;
@@ -137,7 +139,7 @@ public class BoincApp {
       FileUtils.copyFile(this.srcUberjar, uberjar);
 
       files.put(uberjarName, uberjar);
-      files.put("job.xml", copyJobXml(platformDir, p, uberjarName));
+      files.put("job.xml", copyJobXml(platformDir, p, uberjarName, this.mainClass));
       files.put("wrapper", installWrapper(platformDir, p));
       files.put(JDK_ZIP_LOGICAL_NAME, installJdkZip(platformDir, p));
       files.put(mjavaLogicalName(p), installMJava(platformDir, p));
@@ -200,12 +202,12 @@ public class BoincApp {
     FileUtils.writeStringToFile(daemonsFile, xmlWithoutHeader);
   }
 
-  protected File copyJobXml(File platformDir, String platform, String uberjarName)
+  protected File copyJobXml(File platformDir, String platform, String uberjarName, String mainClass)
       throws ImpossibleModificationException, IOException {
     String xml = new Xembler(new Directives().add("job_desc")
         .add("task")
         .add("application").set(mjavaLogicalName(platform)).up()
-        .add("command_line").set(mjavaOptions(platform) + " -jar " + uberjarName).up()
+        .add("command_line").set(mjavaOptions(platform) + " -cp " + uberjarName + " " + mainClass).up()
         .add("append_cmdline_args")
     ).xml();
 
