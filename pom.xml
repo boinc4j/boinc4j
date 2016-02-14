@@ -3,7 +3,7 @@
 
   <groupId>org.boinc4j</groupId>
   <artifactId>boinc4j</artifactId>
-  <version>0.3.3-SNAPSHOT</version>
+  <version>0.3.3</version>
   <modelVersion>4.0.0</modelVersion>
 
   <packaging>jar</packaging>
@@ -19,7 +19,7 @@
     <connection>scm:git:git://github.com/boinc4j/boinc4j.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/boinc4j/boinc4j.git</developerConnection>
     <url>http://github.com/boinc4j/boinc4j</url>
-    <tag>HEAD</tag>
+    <tag>boinc4j-0.3.3</tag>
   </scm>
 
   <distributionManagement>
