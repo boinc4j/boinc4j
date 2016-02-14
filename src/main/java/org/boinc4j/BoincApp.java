@@ -207,7 +207,7 @@ public class BoincApp {
     String xml = new Xembler(new Directives().add("job_desc")
         .add("task")
         .add("application").set(mjavaLogicalName(platform)).up()
-        .add("command_line").set(mjavaOptions(platform) + " -cp " + uberjarName + " " + mainClass).up()
+        .add("command_line").set(mjavaOptions(platform) + " -cp " + uberjarName + " -- " + mainClass).up()
         .add("append_cmdline_args")
     ).xml();
 
