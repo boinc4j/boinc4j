@@ -303,7 +303,7 @@ public class BoincApp {
   }
 
   protected String mjavaOptions(String platform) {
-    return "--mjava-zip=jdk.zip --mjava-home="+jdkVersions.get(platform);
+    return "--mjava-in-proc --mjava-zip=jdk.zip --mjava-home="+jdkVersions.get(platform);
   }
 
   protected File installJdkZip(File platformDir, String platform) throws IOException, ZipException {
